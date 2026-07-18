@@ -1,0 +1,65 @@
+name: release
+
+# Build the Gausify Server binary for Windows, macOS and Linux.
+#  - Run manually from the Actions tab (workflow_dispatch) to get artifacts to
+#    download and test.
+#  - Push a tag like `v0.1.0` to also publish a GitHub Release with the
+#    binaries attached.
+#
+# Crypto is `ring` (see Cargo.toml), so no cmake/NASM is needed and each runner
+# builds natively — the Windows job produces a real MSVC .exe.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: gausify-server.exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            bin: gausify-server
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            bin: gausify-server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Stage binary
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "target/${{ matrix.target }}/release/${{ matrix.bin }}" \
+             "dist/gausify-server-${{ matrix.target }}${{ matrix.bin == 'gausify-server.exe' && '.exe' || '' }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gausify-server-${{ matrix.target }}
+          path: dist/*
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

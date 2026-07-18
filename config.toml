@@ -1,0 +1,17 @@
+# Optional configuration for gausify-server.
+#
+# Place this file as `gausify.toml` next to the binary (or pass --config) to
+# override the defaults. Every field is optional; command-line flags win over
+# anything set here. Delete this file to run with pure defaults.
+
+# Folder to serve. Default: the current working directory.
+# library = "./"
+
+# Listeners (both on by default). The Gausify web app is served over HTTPS in
+# most setups, and an HTTPS page can only fetch HTTPS — so keep `https` on.
+# http = true
+# https = true
+
+# Ports.
+# http_port = 8080
+# https_port = 8443
