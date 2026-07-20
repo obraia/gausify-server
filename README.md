@@ -1,6 +1,6 @@
 # Gausify Server
 
-A single-binary local server for a [Gausify](https://gausify.app) splat library.
+A single-binary local server for a [Gausify](https://gausify.com) splat library.
 Drop it in the folder where your conversions are saved, run it, and paste the
 printed HTTPS URL into the Gausify gallery — no nginx, no config.
 
